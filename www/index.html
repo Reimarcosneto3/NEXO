@@ -1,0 +1,1334 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
+    />
+    <title>NEXO</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #03050b;
+        overflow: hidden;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: #dff;
+      }
+      #c {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        image-rendering: auto;
+      }
+      #ui {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: rgba(3, 5, 11, 0.82);
+        text-align: center;
+        padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom);
+      }
+      #ui.menu {
+        background:
+          linear-gradient(#0008, #000d),
+          url(img/bg_instalacao.jpg) center/cover;
+      }
+      #ui img.logo {
+        max-height: 26vh;
+        max-width: 70vw;
+        border-radius: 8px;
+      }
+      h1,
+      h2 {
+        margin: 0;
+        letter-spacing: 3px;
+        text-shadow: 0 0 12px #0ff;
+      }
+      h2 {
+        font-size: clamp(20px, 5vh, 34px);
+      }
+      .sub {
+        color: #0ff;
+        letter-spacing: 5px;
+        font-size: clamp(12px, 3vh, 18px);
+      }
+      button {
+        font: 700 clamp(15px, 3.6vh, 22px) inherit;
+        font-family: inherit;
+        color: #dff;
+        background: #0b1a2b;
+        border: 2px solid #0ff;
+        border-radius: 12px;
+        padding: 10px 26px;
+        min-width: min(60vw, 280px);
+        min-height: 48px;
+        box-shadow: 0 0 10px #0ff5;
+      }
+      button:active {
+        background: #0ff3;
+      }
+      button.hi {
+        background: #0aa;
+        color: #001;
+        box-shadow: 0 0 18px #0ff;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        width: min(94vw, 860px);
+      }
+      .grid button {
+        min-width: 0;
+        padding: 8px 4px;
+        font-size: clamp(11px, 2.6vh, 15px);
+      }
+      .grid button.lock {
+        opacity: 0.4;
+        border-color: #666;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .st {
+        color: #fd0;
+        font-size: 1.3em;
+        text-shadow: 0 0 8px #fd0;
+      }
+      #hud {
+        position: absolute;
+        inset: 0;
+        display: none;
+        pointer-events: none;
+      }
+      #hud > * {
+        pointer-events: auto;
+        position: absolute;
+      }
+      #joy {
+        left: calc(env(safe-area-inset-left) + 3vw);
+        bottom: calc(env(safe-area-inset-bottom) + 4vh);
+        width: 26vh;
+        height: 26vh;
+        min-width: 120px;
+        min-height: 120px;
+        border-radius: 50%;
+        border: 2px solid #0ff8;
+        background: #0ff1;
+        opacity: 0.3;
+        transition: opacity 0.2s;
+      }
+      #joy.on {
+        opacity: 0.9;
+      }
+      #knob {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 44%;
+        height: 44%;
+        margin: -22%;
+        border-radius: 50%;
+        background: radial-gradient(#8ff, #0aa);
+        box-shadow: 0 0 14px #0ff;
+      }
+      .rb {
+        width: 19vh;
+        height: 19vh;
+        min-width: 84px;
+        min-height: 84px;
+        border-radius: 50%;
+        padding: 0;
+        min-width: 84px;
+        font-size: 7vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0b1a2bcc;
+      }
+      #bj {
+        right: calc(env(safe-area-inset-right) + 3vw);
+        bottom: calc(env(safe-area-inset-bottom) + 4vh);
+        width: 22vh;
+        height: 22vh;
+        min-width: 96px;
+        min-height: 96px;
+      }
+      #bd {
+        right: calc(env(safe-area-inset-right) + 3vw + 25vh);
+        bottom: calc(env(safe-area-inset-bottom) + 5vh);
+        color: #0ff;
+      }
+      #be {
+        right: calc(env(safe-area-inset-right) + 3vw + 12vh);
+        bottom: calc(env(safe-area-inset-bottom) + 27vh);
+        display: none;
+        border-color: #fd0;
+        color: #fd0;
+        box-shadow: 0 0 14px #fd0;
+      }
+      #bp {
+        right: calc(env(safe-area-inset-right) + 2vw);
+        top: calc(env(safe-area-inset-top) + 2vh);
+        width: 9vh;
+        height: 9vh;
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 4vh;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+    <div id="hud">
+      <div id="joy"><div id="knob"></div></div>
+      <button class="rb" id="bj">↑</button><button class="rb" id="bd">⚡</button
+      ><button class="rb" id="be">E</button
+      ><button class="rb" id="bp">Ⅱ</button>
+    </div>
+    <div id="ui"></div>
+    <script>
+      const W = 800,
+        H = 450,
+        GY = 380,
+        $ = (id) => document.getElementById(id);
+      const cv = $("c"),
+        x = cv.getContext("2d");
+      cv.width = W;
+      cv.height = H;
+      const NM = [
+        "O DESPERTAR",
+        "SETOR INDUSTRIAL",
+        "CIDADE MORTA",
+        "SUBSOLO",
+        "LABORATÓRIO",
+        "ZONA VERMELHA",
+        "NÚCLEO",
+        "COLAPSO",
+        "O GUARDIÃO",
+        "O ÚLTIMO FRAGMENTO",
+      ];
+      const BG = [
+        "bg_instalacao",
+        "bg_industrial",
+        "bg_cidade",
+        "bg_instalacao",
+        "bg_lab",
+        "bg_vermelho",
+        "bg_vermelho",
+        "bg_vermelho",
+        "bg_boss",
+        "bg_boss",
+      ];
+      const TXT = [
+        "Colete fragmentos e chegue ao Núcleo. Use ↑ para pular e ⚡ para o impulso.",
+        "Cuidado com os Vazios: pule em cima deles.",
+        "Perseguidores farejam Nexo. Corra!",
+        "A luz dos cristais guia o caminho.",
+        "O laboratório onde Nexo nasceu. Sentinelas vigiam.",
+        "Tudo está instável...",
+        "Os desafios vêm em sequência.",
+        "O chão está cedendo. Avance!",
+        "O Guardião! Desvie e ataque com ⚡ quando ele ficar exposto.",
+        "O último fragmento está próximo.",
+      ];
+      const NMG = [
+        "nexo_idle",
+        "nexo_walk1",
+        "nexo_walk2",
+        "nexo_jump",
+        "nexo_fall",
+        "nexo_hurt",
+        "nexo_dash",
+        "nexo_dead",
+        "nexo_win",
+        "vazio_1",
+        "vazio_2",
+        "vazio_dead",
+        "perseguidor_1",
+        "perseguidor_2",
+        "perseguidor_dead",
+        "sentinela_normal",
+        "sentinela_charge",
+        "sentinela_dead",
+        "guardiao_idle",
+        "guardiao_attack",
+        "guardiao_vuln",
+        "projetil",
+        "chao",
+        "plataforma",
+        "plataforma_movel",
+        "caixa",
+        "porta_fechada",
+        "porta_aberta",
+        "espinhos",
+        "cristal",
+        "terminal",
+        "fragmento",
+        "energia",
+        "nucleo",
+        "fogo",
+        "bg_instalacao",
+        "bg_industrial",
+        "bg_cidade",
+        "bg_lab",
+        "bg_vermelho",
+        "bg_boss",
+      ];
+      const IM = {};
+      NMG.forEach((n) => {
+        const i = new Image();
+        i.src = "img/" + n + (n.startsWith("bg_") ? ".jpg" : ".png");
+        IM[n] = i;
+      });
+      const ok = (n) => IM[n] && IM[n].complete && IM[n].naturalWidth;
+      let S = JSON.parse(localStorage.getItem("nexo") || "null") || {
+        u: 1,
+        st: [],
+        sc: [],
+        rec: 0,
+        vib: true,
+        snd: true,
+      };
+      const sv = () => localStorage.setItem("nexo", JSON.stringify(S));
+      // ---- áudio
+      let AC;
+      function beep(f, d = 0.1, t = "square", v = 0.05, s = 0) {
+        if (!S.snd) return;
+        try {
+          AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+          const o = AC.createOscillator(),
+            g = AC.createGain(),
+            n = AC.currentTime;
+          o.type = t;
+          o.frequency.setValueAtTime(f, n);
+          if (s)
+            o.frequency.exponentialRampToValueAtTime(
+              Math.max(30, f + s),
+              n + d,
+            );
+          g.gain.setValueAtTime(v, n);
+          g.gain.exponentialRampToValueAtTime(0.001, n + d);
+          o.connect(g);
+          g.connect(AC.destination);
+          o.start();
+          o.stop(n + d);
+        } catch (e) {}
+      }
+      const SFX = {
+        jump: () => beep(300, 0.15, "square", 0.04, 400),
+        coll: () => {
+          beep(880, 0.08, "sine");
+          setTimeout(() => beep(1320, 0.1, "sine"), 60);
+        },
+        en: () => beep(500, 0.12, "sine", 0.05, 300),
+        hit: () => beep(140, 0.25, "sawtooth", 0.07, -70),
+        dash: () => beep(200, 0.15, "sawtooth", 0.04, 500),
+        kill: () => beep(500, 0.15, "triangle", 0.06, -300),
+        door: () => beep(200, 0.3, "triangle", 0.06, 300),
+        win: () =>
+          [523, 659, 784, 1047].forEach((f, k) =>
+            setTimeout(() => beep(f, 0.2, "sine"), k * 120),
+          ),
+        die: () => beep(300, 0.6, "sawtooth", 0.07, -250),
+        btn: () => beep(600, 0.05, "sine"),
+        shot: () => beep(700, 0.1, "sawtooth", 0.03, -400),
+      };
+      const vib = (n) => {
+        if (S.vib && navigator.vibrate) navigator.vibrate(n);
+      };
+      // ---- entrada
+      const K = {};
+      let ax = 0,
+        jp = 0,
+        jh = 0,
+        dp = 0,
+        ip = 0;
+      const JK = (c) => c == "Space" || c == "ArrowUp" || c == "KeyW";
+      addEventListener("keydown", (e) => {
+        K[e.code] = 1;
+        if (JK(e.code)) {
+          if (!jh) jp = 1;
+          jh = 1;
+        }
+        if (e.code == "ShiftLeft" || e.code == "KeyX") dp = 1;
+        if (e.code == "KeyE") ip = 1;
+        if (e.code == "Escape") pause();
+      });
+      addEventListener("keyup", (e) => {
+        K[e.code] = 0;
+        if (JK(e.code)) jh = 0;
+      });
+      const jz = $("joy"),
+        kn = $("knob");
+      let jid = null,
+        jx0 = 0;
+      function jm(e) {
+        const d = Math.max(
+          -1,
+          Math.min(1, (e.clientX - jx0) / (jz.offsetWidth * 0.4)),
+        );
+        ax = Math.abs(d) < 0.18 ? 0 : d;
+        kn.style.transform = `translateX(${d * jz.offsetWidth * 0.3}px)`;
+      }
+      jz.addEventListener("pointerdown", (e) => {
+        jid = e.pointerId;
+        jz.setPointerCapture(e.pointerId);
+        const r = jz.getBoundingClientRect();
+        jx0 = r.left + r.width / 2;
+        jm(e);
+        jz.classList.add("on");
+      });
+      jz.addEventListener("pointermove", (e) => {
+        if (e.pointerId == jid) jm(e);
+      });
+      const je = (e) => {
+        if (e.pointerId == jid) {
+          jid = null;
+          ax = 0;
+          kn.style.transform = "";
+          jz.classList.remove("on");
+        }
+      };
+      jz.addEventListener("pointerup", je);
+      jz.addEventListener("pointercancel", je);
+      const bind = (id, dn, up) => {
+        const b = $(id);
+        b.addEventListener("pointerdown", (e) => {
+          e.preventDefault();
+          dn();
+        });
+        if (up)
+          ["pointerup", "pointercancel", "pointerleave"].forEach((v) =>
+            b.addEventListener(v, up),
+          );
+      };
+      bind(
+        "bj",
+        () => {
+          jp = 1;
+          jh = 1;
+        },
+        () => (jh = 0),
+      );
+      bind("bd", () => (dp = 1));
+      bind("be", () => (ip = 1));
+      bind("bp", () => pause());
+      // ---- utilitários
+      function rng(s) {
+        return () => {
+          s |= 0;
+          s = (s + 0x6d2b79f5) | 0;
+          let t = Math.imul(s ^ (s >>> 15), 1 | s);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      let G = null,
+        state = "menu";
+      // ---- geração de fase
+      function build(i) {
+        const r = rng(i * 97 + 13),
+          B = i == 8,
+          L = B ? 1700 : 4200 + i * 450,
+          o = {
+            L,
+            solids: [],
+            fr: [],
+            en: [],
+            hz: [],
+            pk: [],
+            dc: [],
+            door: null,
+            exit: B ? null : { x: L - 110, y: GY - 84, w: 60, h: 84 },
+            boss: null,
+            need: 0,
+          },
+          segs = [];
+        let px = 0;
+        while (px < L) {
+          let len = B ? L : px ? (380 + r() * 380) | 0 : 520;
+          if (L - (px + len) < 450) len = L - px;
+          o.solids.push({ x: px, y: GY, w: len, h: 70, t: "g" });
+          segs.push([px, px + len]);
+          px += len;
+          if (px < L) {
+            const gp = 60 + i * 5 + ((r() * 24) | 0);
+            o.solids.push({
+              x: px + gp / 2 - 45,
+              y: GY - 85,
+              w: 90,
+              h: 14,
+              t: "p",
+            });
+            px += gp;
+          }
+        }
+        const np = B ? 4 : 6 + i;
+        for (let k = 0; k < np; k++) {
+          const w = 100 + ((r() * 90) | 0),
+            X = (B ? 200 : 600) + ((r() * (L - (B ? 500 : 1300))) | 0),
+            Y = GY - 110 - ((r() * 90) | 0),
+            s = { x: X, y: Y, w, h: 14, t: "p" };
+          if (i >= 1 && r() < 0.3) {
+            s.t = "m";
+            s.x0 = X;
+            s.mv = 50 + r() * 40;
+            s.sp = 1 + r();
+            s.ph = r() * 6;
+            s.dx = 0;
+          }
+          o.solids.push(s);
+          o.fr.push({ x: X + w / 2, y: Y - 30, g: 0 });
+        }
+        const al = i < 2 ? ["v"] : i < 4 ? ["v", "p"] : ["v", "p", "s"];
+        segs.forEach(([a, b], k) => {
+          if (!k) return;
+          const w = b - a;
+          if (r() < 0.6) o.fr.push({ x: a + w * 0.5, y: GY - 32, g: 0 });
+          if (r() < 0.35) o.pk.push({ x: a + w * 0.28, y: GY - 32, g: 0 });
+          if (B && k > 0) return;
+          if (r() < (i ? 0.85 : 0.45)) {
+            const t = al[(r() * al.length) | 0],
+              e = {
+                t,
+                x: a + w * 0.35,
+                x0: a + 10,
+                x1: b - 10,
+                dir: -1,
+                hp: 1,
+                tm: 0,
+                ht: 0,
+                f: 0,
+                dead: 0,
+                dt: 0,
+                dmg: 15,
+              };
+            if (t == "v") {
+              e.w = 44;
+              e.h = 34;
+            }
+            if (t == "p") {
+              e.w = 46;
+              e.h = 46;
+              e.hp = 2;
+            }
+            if (t == "s") {
+              e.w = 52;
+              e.h = 52;
+              e.hp = 3;
+            }
+            e.y = GY - e.h;
+            o.en.push(e);
+          }
+          if (i && r() < 0.35)
+            o.hz.push({ x: a + w * 0.72, y: GY - 26, w: 70, h: 26 });
+          if (r() < 0.5)
+            o.dc.push({
+              n: i == 3 ? "cristal" : i >= 5 ? "fogo" : "caixa",
+              x: a + w * 0.15,
+              h: i == 3 ? 60 : i >= 5 ? 46 : 40,
+            });
+        });
+        if (B) {
+          o.boss = {
+            x: L - 460,
+            y: GY - 230,
+            w: 190,
+            h: 230,
+            hp: 8,
+            st: "idle",
+            tm: 0,
+            c: -1,
+            f: 0,
+            ht: 0,
+            dead: 0,
+            boss: 1,
+          };
+          o.en.push({
+            t: "v",
+            x: 500,
+            x0: 200,
+            x1: 900,
+            dir: 1,
+            hp: 1,
+            tm: 0,
+            ht: 0,
+            f: 0,
+            dead: 0,
+            dt: 0,
+            dmg: 15,
+            w: 44,
+            h: 34,
+            y: GY - 34,
+          });
+        } else {
+          const dx = L - 380;
+          o.door = { x: dx, y: GY - 110, w: 34, h: 110, open: false };
+          o.need = Math.ceil(o.fr.length * 0.45);
+        }
+        return o;
+      }
+      // ---- controle de jogo
+      function start(i) {
+        G = {
+          i,
+          lv: build(i),
+          score: 0,
+          frags: 0,
+          dmg: 0,
+          time: 0,
+          shots: [],
+          zones: [],
+          pt: [],
+          cam: 0,
+          msg: TXT[i],
+          mt: 4,
+          endT: 0,
+          m: 1 + i * 0.07,
+        };
+        G.p = {
+          x: 60,
+          y: GY - 60,
+          w: 34,
+          h: 56,
+          vx: 0,
+          vy: 0,
+          hp: 100,
+          inv: 0,
+          dc: 0,
+          dt: 0,
+          dd: 1,
+          on: false,
+          face: 1,
+          co: 0,
+          ck: { x: 60, y: GY - 60 },
+          an: 0,
+          dead: 0,
+          ot: 0,
+        };
+        state = "play";
+        $("ui").style.display = "none";
+        $("hud").style.display = "block";
+      }
+      function show(h, c = "") {
+        $("ui").className = c;
+        $("ui").innerHTML = h;
+        $("ui").style.display = "flex";
+        $("hud").style.display = "none";
+      }
+      function B(t, f, c = "") {
+        return `<button class="${c}" onclick="SFX.btn();${f}">${t}</button>`;
+      }
+      function menu() {
+        state = "menu";
+        G = null;
+        show(
+          `<img class="logo" src="img/logo.jpg"><div class="sub">RECUPERE O NÚCLEO</div>${B("JOGAR", "start(Math.min(S.u-1,9))", "hi")}${B("FASES", "levels()")}${B("CONFIGURAÇÕES", "cfg()")}${B("SAIR", "quit()")}`,
+          "menu",
+        );
+      }
+      function quit() {
+        try {
+          navigator.app.exitApp();
+        } catch (e) {
+          try {
+            window.Capacitor.Plugins.App.exitApp();
+          } catch (e2) {
+            window.close();
+          }
+        }
+      }
+      function levels() {
+        state = "menu";
+        show(
+          `<h2>FASES</h2><div class="grid">${NM.map((n, i) => {
+            const l = i >= S.u;
+            return `<button class="${l ? "lock" : ""}" ${l ? "" : `onclick="SFX.btn();start(${i})"`}>${String(i + 1).padStart(2, "0")} — ${n}<br>${l ? "🔒" : `<span class="st">${"★".repeat(S.st[i] || 0)}${"☆".repeat(3 - (S.st[i] || 0))}</span>`}</button>`;
+          }).join("")}</div>${B("VOLTAR", "menu()")}`,
+        );
+      }
+      function cfg() {
+        show(
+          `<h2>CONFIGURAÇÕES</h2>${B("SOM: " + (S.snd ? "LIGADO" : "DESLIGADO"), "S.snd=!S.snd;sv();cfg()")}${B("VIBRAÇÃO: " + (S.vib ? "LIGADA" : "DESLIGADA"), "S.vib=!S.vib;sv();cfg()")}${B("APAGAR PROGRESSO", "if(confirm('Apagar tudo?')){S={u:1,st:[],sc:[],rec:0,vib:S.vib,snd:S.snd};sv()}cfg()")}${B("VOLTAR", "menu()")}`,
+        );
+      }
+      function pause() {
+        if (state == "play") {
+          state = "pause";
+          show(
+            `<h2>PAUSADO</h2>${B("CONTINUAR", "resume()", "hi")}${B("REINICIAR", "start(G.i)")}${B("MENU", "menu()")}`,
+          );
+        } else if (state == "pause") resume();
+      }
+      function resume() {
+        state = "play";
+        $("ui").style.display = "none";
+        $("hud").style.display = "block";
+      }
+      function over() {
+        state = "over";
+        show(
+          `<img src="img/nexo_dead.png" style="height:22vh"><h2>NEXO FOI DESATIVADO</h2><div>PONTUAÇÃO: ${G.score}</div>${B("TENTAR NOVAMENTE", "start(G.i)", "hi")}${B("ESCOLHER FASE", "levels()")}${B("MENU PRINCIPAL", "menu()")}`,
+        );
+      }
+      function finish() {
+        const g = G,
+          i = g.i,
+          par = g.lv.L / 60;
+        state = "won";
+        SFX.win();
+        vib([60, 60, 120]);
+        const sc =
+          g.score +
+          Math.max(0, Math.round((par - g.time) * 8)) +
+          Math.max(0, 100 - g.dmg) * 4;
+        const ratio = g.frags / g.lv.fr.length;
+        let st =
+          1 + (g.dmg <= 25 ? 1 : 0) + (g.time < par && ratio > 0.6 ? 1 : 0);
+        S.st[i] = Math.max(S.st[i] || 0, st);
+        S.sc[i] = Math.max(S.sc[i] || 0, sc);
+        if (i < 9) S.u = Math.max(S.u, i + 2);
+        const tot = S.sc.reduce((a, b) => a + (b || 0), 0),
+          nr = i == 9 && tot > S.rec;
+        if (nr) S.rec = tot;
+        sv();
+        const tm = `${String((g.time / 60) | 0).padStart(2, "0")}:${String((g.time % 60) | 0).padStart(2, "0")}`;
+        if (i == 9)
+          show(
+            `<img src="img/nexo_win.png" style="height:26vh"><h2>"O mundo voltou a funcionar."</h2><h1>FIM</h1><div>PONTUAÇÃO TOTAL: ${tot}</div>${nr ? '<div class="st">NOVO RECORDE</div>' : ""}${B("MENU", "menu()", "hi")}`,
+          );
+        else
+          show(
+            `<h2>FASE CONCLUÍDA</h2><div>FRAGMENTOS: ${g.frags}/${g.lv.fr.length} &nbsp; TEMPO: ${tm}<br>DANO RECEBIDO: ${g.dmg} &nbsp; PONTUAÇÃO: ${sc}</div><div class="st" style="font-size:2.4em">${"★".repeat(st)}${"☆".repeat(3 - st)}</div><div>PRÓXIMA FASE DESBLOQUEADA</div>${B("PRÓXIMA FASE", `start(${i + 1})`, "hi")}${B("REPETIR FASE", `start(${i})`)}${B("MENU", "menu()")}`,
+          );
+      }
+      function burst(X, Y, c, n = 10) {
+        for (let k = 0; k < n; k++)
+          G.pt.push({
+            x: X,
+            y: Y,
+            vx: (Math.random() - 0.5) * 260,
+            vy: (Math.random() - 0.8) * 260,
+            l: 0.6,
+            c,
+          });
+      }
+      function hurt(n, force) {
+        const p = G.p;
+        if (!force && p.inv > 0) return;
+        p.hp -= n;
+        p.inv = 1.2;
+        G.dmg += n;
+        p.vy = -300;
+        p.dt = 0;
+        SFX.hit();
+        vib(60);
+        burst(p.x + 17, p.y + 28, "#f44", 8);
+      }
+      function dmgE(e, n) {
+        if (e.ht > 0 || e.dead) return;
+        e.ht = 0.5;
+        e.hp -= n;
+        e.fl = 0.15;
+        if (e.hp <= 0) {
+          e.dead = 1;
+          e.dt = 0.7;
+          G.score += e.boss ? 1000 : 150;
+          SFX.kill();
+          vib(40);
+          burst(
+            e.x + e.w / 2,
+            e.y + e.h / 2,
+            e.boss ? "#f4f" : "#a5f",
+            e.boss ? 40 : 14,
+          );
+          if (e.boss) G.endT = 1.6;
+        } else SFX.kill();
+      }
+      // ---- atualização
+      function update(dt) {
+        const g = G,
+          p = g.p,
+          lv = g.lv;
+        g.time += dt;
+        g.mt -= dt;
+        lv.solids.forEach((s) => {
+          if (s.mv) {
+            const o = s.x;
+            s.x = s.x0 + Math.sin(g.time * s.sp + s.ph) * s.mv;
+            s.dx = s.x - o;
+          }
+        });
+        if (p.dead) {
+          p.ot -= dt;
+          p.vy += 1500 * dt;
+          if (p.ot <= 0) over();
+          return;
+        }
+        const a =
+          ax ||
+          (K.ArrowRight || K.KeyD ? 1 : 0) - (K.ArrowLeft || K.KeyA ? 1 : 0);
+        if (dp && p.dc <= 0) {
+          p.dt = 0.18;
+          p.dc = 1.2;
+          p.dd = a || p.face;
+          SFX.dash();
+          vib(20);
+        }
+        dp = 0;
+        p.dc -= dt;
+        p.inv -= dt;
+        p.an += dt;
+        if (p.dt > 0) {
+          p.dt -= dt;
+          p.vx = p.dd * 560;
+          p.vy = 0;
+        } else {
+          p.vx += (a * 230 - p.vx) * Math.min(1, dt * 14);
+          p.vy += 1500 * dt;
+        }
+        if (a) p.face = a > 0 ? 1 : -1;
+        p.co -= dt;
+        if (p.on) p.co = 0.1;
+        if (jp) {
+          jp = 0;
+          if (p.co > 0) {
+            p.vy = -600;
+            p.co = 0;
+            p.on = false;
+            SFX.jump();
+            vib(8);
+          }
+        }
+        if (!jh && p.vy < -250) p.vy *= 0.75;
+        p.x = Math.max(0, Math.min(lv.L - p.w, p.x + p.vx * dt));
+        const py = p.y;
+        p.y += p.vy * dt;
+        p.on = false;
+        for (const s of lv.solids)
+          if (
+            p.vy >= 0 &&
+            p.x + p.w > s.x + 4 &&
+            p.x < s.x + s.w - 4 &&
+            py + p.h <= s.y + 10 &&
+            p.y + p.h >= s.y
+          ) {
+            p.y = s.y - p.h;
+            p.vy = 0;
+            p.on = true;
+            if (s.dx) p.x += s.dx;
+            if (s.t == "g" && p.x > s.x + 30 && p.x + p.w < s.x + s.w - 30)
+              p.ck = { x: p.x, y: p.y };
+          }
+        const d = lv.door;
+        let near = false;
+        if (d) {
+          if (!d.open && p.x + p.w > d.x && p.x < d.x + d.w)
+            p.x = p.x + p.w / 2 < d.x + d.w / 2 ? d.x - p.w : d.x + d.w;
+          near = !d.open && Math.abs(p.x + p.w / 2 - (d.x + d.w / 2)) < 110;
+          if (near && ip) {
+            if (g.frags >= lv.need) {
+              d.open = true;
+              SFX.door();
+              vib(30);
+            } else {
+              g.msg = `Porta trancada: colete ${lv.need} fragmentos`;
+              g.mt = 2.5;
+              beep(150, 0.2, "square");
+            }
+          }
+        }
+        ip = 0;
+        $("be").style.display = near ? "flex" : "none";
+        $("bd").style.opacity = p.dc > 0 ? 0.35 : 1;
+        if (p.y > H + 80) {
+          hurt(30, true);
+          p.x = p.ck.x;
+          p.y = p.ck.y - 4;
+          p.vx = p.vy = 0;
+        }
+        const hit = (o, r) => Math.hypot(p.x + 17 - o.x, p.y + 28 - o.y) < r;
+        lv.fr.forEach((f) => {
+          if (!f.g && hit(f, 28)) {
+            f.g = 1;
+            g.frags++;
+            g.score += 100;
+            SFX.coll();
+            vib(15);
+            burst(f.x, f.y, "#0ff", 8);
+          }
+        });
+        lv.pk.forEach((f) => {
+          if (!f.g && hit(f, 28)) {
+            f.g = 1;
+            p.hp = Math.min(100, p.hp + 20);
+            g.score += 50;
+            SFX.en();
+            burst(f.x, f.y, "#5f9", 8);
+          }
+        });
+        lv.hz.forEach((h) => {
+          if (p.x + p.w > h.x && p.x < h.x + h.w && p.y + p.h > h.y + 4)
+            hurt(20);
+        });
+        const touch = (e) => {
+          if (
+            e.dead ||
+            p.x + p.w <= e.x ||
+            p.x >= e.x + e.w ||
+            p.y + p.h <= e.y ||
+            p.y >= e.y + e.h
+          )
+            return;
+          if (e.boss) {
+            if (p.dt > 0 && e.st == "vuln") dmgE(e, 1);
+            else if (p.dt <= 0 && e.st != "vuln") hurt(20);
+            return;
+          }
+          if (p.dt > 0) dmgE(e, 2);
+          else if (p.vy > 80 && p.y + p.h - e.y < 30) {
+            dmgE(e, 1);
+            p.vy = -430;
+          } else hurt(e.dmg);
+        };
+        lv.en.forEach((e) => {
+          e.ht -= dt;
+          e.fl -= dt;
+          if (e.dead) {
+            e.dt -= dt;
+            return;
+          }
+          const dx = p.x - e.x,
+            ad = Math.abs(dx),
+            m = g.m;
+          e.f += dt;
+          if (e.t == "v" || e.t == "p") {
+            const ch = ad < (e.t == "p" ? 340 : 380),
+              sp = (e.t == "p" ? (ch ? 125 : 40) : 45) * m;
+            e.dir = ch
+              ? Math.sign(dx) || 1
+              : e.x < e.x0 + 3
+                ? 1
+                : e.x > e.x1 - e.w - 3
+                  ? -1
+                  : e.dir;
+            e.x = Math.max(e.x0, Math.min(e.x1 - e.w, e.x + e.dir * sp * dt));
+          } else {
+            e.dir = dx < 0 ? -1 : 1;
+            if (ad < 540) {
+              e.tm += dt;
+              if (e.tm > 2.4 / m) {
+                e.tm = 0;
+                SFX.shot();
+                g.shots.push({
+                  x: e.x + (e.dir > 0 ? e.w : 0),
+                  y: e.y + 20,
+                  vx: e.dir * 270,
+                  vy: 0,
+                  r: 10,
+                  life: 4,
+                });
+              }
+            } else e.tm = 0;
+          }
+          touch(e);
+        });
+        lv.en = lv.en.filter((e) => !e.dead || e.dt > 0);
+        const b = lv.boss;
+        if (b) {
+          b.ht -= dt;
+          b.fl -= dt;
+          if (b.dead) {
+            b.dt -= dt;
+          } else {
+            b.tm += dt;
+            if (b.st == "idle" && b.tm > 1.3) {
+              b.st = "atk";
+              b.tm = 0;
+              b.f = 0;
+              b.c++;
+            } else if (b.st == "atk") {
+              const k = b.c % 3;
+              if (!b.f) {
+                b.f = 1;
+                if (k == 0)
+                  [GY - 25, GY - 85, GY - 145].forEach((y) => {
+                    g.shots.push({
+                      x: b.x,
+                      y,
+                      vx: -300,
+                      vy: 0,
+                      r: 11,
+                      life: 5,
+                    });
+                  });
+                if (k == 1)
+                  for (let j = -1; j <= 1; j++)
+                    g.zones.push({
+                      x: p.x + j * 120 - 40,
+                      w: 90,
+                      t: 1.1,
+                      d: 0,
+                    });
+              }
+              if (k == 2)
+                b.x = Math.max(
+                  60,
+                  Math.min(
+                    lv.L - b.w - 20,
+                    b.x + Math.sign(p.x - b.x) * 230 * dt,
+                  ),
+                );
+              if (b.tm > 1.7) {
+                b.st = "vuln";
+                b.tm = 0;
+              }
+            } else if (b.st == "vuln" && b.tm > 3.5) {
+              b.st = "idle";
+              b.tm = 0;
+            }
+            touch(b);
+          }
+        }
+        g.zones.forEach((z) => {
+          z.t -= dt;
+          if (
+            z.t < 0.3 &&
+            !z.d &&
+            p.x + p.w > z.x &&
+            p.x < z.x + z.w &&
+            p.y + p.h > GY - 12
+          ) {
+            z.d = 1;
+            hurt(20);
+          }
+        });
+        g.zones = g.zones.filter((z) => z.t > 0);
+        g.shots.forEach((s) => {
+          s.x += s.vx * dt;
+          s.life -= dt;
+          if (hit(s, s.r + 16)) {
+            s.life = 0;
+            hurt(15);
+          }
+        });
+        g.shots = g.shots.filter((s) => s.life > 0);
+        g.pt.forEach((q) => {
+          q.x += q.vx * dt;
+          q.y += q.vy * dt;
+          q.vy += 600 * dt;
+          q.l -= dt;
+        });
+        g.pt = g.pt.filter((q) => q.l > 0);
+        const ex = lv.exit;
+        if (ex && p.x + p.w > ex.x && p.x < ex.x + ex.w && p.y + p.h > ex.y) {
+          finish();
+          return;
+        }
+        if (g.endT > 0) {
+          g.endT -= dt;
+          if (g.endT <= 0) {
+            finish();
+            return;
+          }
+        }
+        if (p.hp <= 0 && !p.dead) {
+          p.dead = 1;
+          p.ot = 1.3;
+          p.vy = -350;
+          SFX.die();
+          vib(200);
+        }
+        g.cam = Math.max(0, Math.min(lv.L - W, p.x - W * 0.4));
+      }
+      // ---- desenho
+      function spr(n, cx, by, h, fl, al = 1, rot = 0, k) {
+        const im = IM[n];
+        if (!ok(n)) return;
+        const hh = k ? im.naturalHeight * k : h,
+          w = (im.naturalWidth / im.naturalHeight) * hh;
+        x.save();
+        x.globalAlpha = al;
+        x.translate(cx, by);
+        if (rot) x.rotate(rot);
+        if (fl) x.scale(-1, 1);
+        x.drawImage(im, -w / 2, -hh, w, hh);
+        x.restore();
+      }
+      function tile(n, X, Y, w, h, tw) {
+        const im = IM[n];
+        if (!ok(n)) {
+          x.fillStyle = "#223";
+          x.fillRect(X, Y, w, h);
+          return;
+        }
+        for (let t = 0; t < w; t += tw) {
+          const dw = Math.min(tw, w - t);
+          x.drawImage(
+            im,
+            0,
+            0,
+            (im.naturalWidth * dw) / tw,
+            im.naturalHeight,
+            X + t,
+            Y,
+            dw,
+            h,
+          );
+        }
+      }
+      function draw() {
+        const g = G,
+          p = g.p,
+          lv = g.lv,
+          c = g.cam,
+          T = g.time;
+        x.fillStyle = "#050810";
+        x.fillRect(0, 0, W, H);
+        const bg = IM[BG[g.i]];
+        if (ok(BG[g.i])) {
+          const bw = (bg.naturalWidth * H) / bg.naturalHeight,
+            o = -((c * 0.25) % bw);
+          for (let X = o; X < W; X += bw) x.drawImage(bg, X, 0, bw, H);
+        }
+        x.fillStyle = g.i == 3 ? "rgba(0,25,70,.55)" : "rgba(0,0,10,.3)";
+        x.fillRect(0, 0, W, H);
+        x.save();
+        x.translate(-Math.round(c), 0);
+        lv.dc.forEach((d) =>
+          spr(
+            d.n,
+            d.x,
+            GY,
+            d.h,
+            0,
+            d.n == "fogo" ? 0.6 + 0.3 * Math.sin(T * 9 + d.x) : 1,
+          ),
+        );
+        if (lv.door) spr("terminal", lv.door.x - 70, GY, 54);
+        lv.solids.forEach((s) => {
+          if (s.x + s.w < c - 20 || s.x > c + W + 20) return;
+          if (s.t == "g") {
+            tile("chao", s.x, s.y, s.w, 70, 220);
+          } else if (ok(s.t == "m" ? "plataforma_movel" : "plataforma"))
+            x.drawImage(
+              IM[s.t == "m" ? "plataforma_movel" : "plataforma"],
+              s.x,
+              s.y - 6,
+              s.w,
+              s.t == "m" ? 30 : 24,
+            );
+          else {
+            x.fillStyle = "#345";
+            x.fillRect(s.x, s.y, s.w, s.h);
+          }
+        });
+        lv.hz.forEach((h) => {
+          if (ok("espinhos"))
+            x.drawImage(IM.espinhos, h.x, h.y - 8, h.w, h.h + 8);
+        });
+        if (lv.door) {
+          const d = lv.door;
+          spr(
+            d.open ? "porta_aberta" : "porta_fechada",
+            d.x + d.w / 2,
+            GY,
+            d.h,
+            0,
+            d.open ? 0.6 : 1,
+          );
+        }
+        if (lv.exit) {
+          const e = lv.exit;
+          x.globalAlpha = 0.7 + 0.3 * Math.sin(T * 4);
+          spr("nucleo", e.x + 30, GY + 8, 100, 0, 1, Math.sin(T) * 0.1);
+          x.globalAlpha = 1;
+        }
+        lv.fr.forEach((f) => {
+          if (!f.g)
+            spr("fragmento", f.x, f.y + 16 + Math.sin(T * 3 + f.x) * 4, 34);
+        });
+        lv.pk.forEach((f) => {
+          if (!f.g)
+            spr("energia", f.x, f.y + 14 + Math.sin(T * 3 + f.x) * 3, 28);
+        });
+        g.zones.forEach((z) => {
+          x.fillStyle = `rgba(255,40,40,${z.t < 0.3 ? 0.7 : 0.25 + 0.15 * Math.sin(T * 30)})`;
+          x.fillRect(z.x, GY - 8, z.w, 10);
+        });
+        lv.en.forEach((e) => {
+          const cx = e.x + e.w / 2,
+            by = e.y + e.h,
+            fl = e.dir > 0 ? 0 : 1,
+            al = e.dead ? Math.max(0, e.dt / 0.7) : 1;
+          let n, h;
+          if (e.t == "v") {
+            n = e.dead
+              ? "vazio_dead"
+              : Math.sin(e.f * 8) > 0
+                ? "vazio_1"
+                : "vazio_2";
+            h = 40;
+          } else if (e.t == "p") {
+            n = e.dead
+              ? "perseguidor_dead"
+              : Math.sin(e.f * 12) > 0
+                ? "perseguidor_1"
+                : "perseguidor_2";
+            h = 62;
+          } else {
+            n = e.dead
+              ? "sentinela_dead"
+              : e.tm > 1.7 / g.m
+                ? "sentinela_charge"
+                : "sentinela_normal";
+            h = 64;
+          }
+          if (e.fl > 0) x.filter = "brightness(3)";
+          spr(
+            n,
+            cx,
+            by + 4,
+            h * (e.t == "p" && !e.dead ? 1 + 0.05 * Math.sin(e.f * 12) : 1),
+            fl,
+            al,
+          );
+          x.filter = "none";
+        });
+        const b = lv.boss;
+        if (b) {
+          const n = b.dead
+            ? "guardiao_idle"
+            : b.st == "atk"
+              ? "guardiao_attack"
+              : b.st == "vuln"
+                ? "guardiao_vuln"
+                : "guardiao_idle";
+          if (b.fl > 0) x.filter = "brightness(3)";
+          spr(
+            n,
+            b.x + b.w / 2,
+            GY + 6,
+            250 + (b.st == "idle" ? 4 * Math.sin(T * 3) : 0),
+            0,
+            b.dead ? Math.max(0, b.dt / 1.5) : 1,
+          );
+          x.filter = "none";
+          if (!b.dead) {
+            x.fillStyle = "#000a";
+            x.fillRect(b.x, b.y - 18, b.w, 8);
+            x.fillStyle = "#f4f";
+            x.fillRect(b.x, b.y - 18, (b.w * b.hp) / 8, 8);
+          }
+        }
+        g.shots.forEach((s) => spr("projetil", s.x, s.y + s.r, s.r * 3));
+        // Nexo
+        if (!(p.inv > 0 && !p.dead && Math.floor(T * 20) % 2)) {
+          let n = "nexo_idle",
+            by = p.y + p.h + 3,
+            rot = 0,
+            sc = 0.153,
+            cx = p.x + p.w / 2,
+            sy = 1;
+          if (p.dead) {
+            n = "nexo_dead";
+            rot = 0;
+          } else if (p.dt > 0) n = "nexo_dash";
+          else if (p.inv > 0.9) n = "nexo_hurt";
+          else if (!p.on) n = p.vy < 0 ? "nexo_jump" : "nexo_fall";
+          else if (Math.abs(p.vx) > 30) {
+            n = Math.floor(p.an * 8) % 2 ? "nexo_walk1" : "nexo_walk2";
+            by -= Math.abs(Math.sin(p.an * 16)) * 3;
+            rot = 0.05 * p.face;
+          } else sy = 1 + 0.02 * Math.sin(T * 3);
+          if (p.dt > 0) cx -= p.face * 20;
+          const im = IM[n];
+          if (ok(n)) {
+            const h = n == "nexo_dead" ? 38 : im.naturalHeight * sc * sy;
+            spr(n, cx, by, h, p.face < 0, 1, rot);
+          }
+        }
+        g.pt.forEach((q) => {
+          x.globalAlpha = Math.max(0, q.l / 0.6);
+          x.fillStyle = q.c;
+          x.fillRect(q.x, q.y, 4, 4);
+        });
+        x.globalAlpha = 1;
+        x.restore();
+        // HUD
+        x.font = "bold 13px sans-serif";
+        x.fillStyle = "#0ff";
+        x.fillText("ENERGIA", 16, 20);
+        x.fillStyle = "#0009";
+        x.fillRect(16, 26, 170, 14);
+        x.fillStyle = p.hp > 30 ? "#0ff" : "#f44";
+        x.fillRect(17, 27, (168 * Math.max(0, p.hp)) / 100, 12);
+        x.strokeStyle = "#0ff";
+        x.strokeRect(16, 26, 170, 14);
+        x.fillStyle = "#dff";
+        x.fillText(`FRAGMENTOS: ${g.frags}/${lv.fr.length}`, 16, 60);
+        if (lv.door && !lv.door.open) {
+          x.fillStyle = "#fd0";
+          x.fillText(`PORTA: ${lv.need} fragmentos`, 16, 78);
+        }
+        x.textAlign = "right";
+        x.fillStyle = "#0ff";
+        x.fillText(`FASE ${String(g.i + 1).padStart(2, "0")}`, W - 70, 22);
+        x.fillStyle = "#dff";
+        x.fillText(`${g.score} pts`, W - 70, 40);
+        x.textAlign = "center";
+        if (g.mt > 0) {
+          x.font = "bold 15px sans-serif";
+          x.fillStyle = "rgba(0,0,0,.6)";
+          x.fillRect(W / 2 - 280, H - 60, 560, 26);
+          x.fillStyle = "#fd0";
+          x.fillText(g.msg, W / 2, H - 42);
+        }
+        x.textAlign = "left";
+        if (p.hp < 30 && !p.dead) {
+          x.strokeStyle = `rgba(255,0,0,${0.3 + 0.3 * Math.sin(T * 8)})`;
+          x.lineWidth = 10;
+          x.strokeRect(0, 0, W, H);
+          x.lineWidth = 1;
+        }
+        if (p.dead) {
+          x.fillStyle = `rgba(0,0,0,${1 - p.ot / 1.3})`;
+          x.fillRect(0, 0, W, H);
+        }
+      }
+      let last = 0;
+      function loop(t) {
+        requestAnimationFrame(loop);
+        const dt = Math.min(0.033, (t - last) / 1000 || 0);
+        last = t;
+        if (state == "play") update(dt);
+        if (G && state != "menu" && state != "won") draw();
+      }
+      requestAnimationFrame(loop);
+      menu();
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) pause();
+      });
+    </script>
+  </body>
+</html>

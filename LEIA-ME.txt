@@ -1,0 +1,12 @@
+NEXO - COMO GERAR O APK
+1) Teste no PC: entre na pasta www e rode:  npx serve   (ou python3 -m http.server)  e abra no navegador.
+   Teclado: setas/AD mover, Espaço pular, Shift/X impulso, E interagir, Esc pausa.
+2) Instale Node.js e Android Studio. Nesta pasta:
+   npm install
+   npx cap add android
+   npx cap sync
+   npx cap open android
+3) No Android Studio: Build > Build Bundle(s)/APK(s) > Build APK(s).
+4) Orientação horizontal: em android/app/src/main/AndroidManifest.xml, na tag <activity>, adicione
+   android:screenOrientation="sensorLandscape"
+5) Depois de mudar arquivos em www: npx cap sync
